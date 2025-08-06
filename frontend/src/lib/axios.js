@@ -1,6 +1,6 @@
 import axios from "axios";
 export const axiosInstance = axios.create({
-  baseURL: "http://localhost:5002/api",
+  baseURL: `${import.meta.env.VITE_REACT_APP_API_URL}/api`,
   withCredentials: true
 });
 axiosInstance.interceptors.request.use(
