@@ -84,12 +84,18 @@ export async function login(req, res) {
             expiresIn: "7d",
         });
 
+        // res.cookie("jwt", token, {
+        //     maxAge: 7 * 24 * 60 * 60 * 1000,
+        //     httpOnly: true, // prevent XSS attacks,
+        //     sameSite: "strict", // prevent CSRF attacks
+        //     secure: process.env.NODE_ENV === "production",
+        // });
         res.cookie("jwt", token, {
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-            httpOnly: true, // prevent XSS attacks,
-            sameSite: "strict", // prevent CSRF attacks
-            secure: process.env.NODE_ENV === "production",
-        });
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    sameSite: "none",    // allow cross-site
+    secure: true         // MUST be true with sameSite: none
+});
 
         res.status(200).json({ success: true, user });
     } catch (error) {
