@@ -3,6 +3,7 @@ export const axiosInstance = axios.create({
   baseURL: `${import.meta.env.VITE_REACT_APP_API_URL}/api`,
   withCredentials: true
 });
+console.log()
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token"); // or your actual key
