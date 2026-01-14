@@ -11,6 +11,20 @@ import { CheckCircleIcon, MapPinIcon, UserPlusIcon, UsersIcon } from "lucide-rea
 import { capitialize } from "../lib/utils";
 import FriendCard from "../components/FriendCard";
 import NoFriendsFound from "../components/NoFriendsFound";
+const getLanguageFlag = (language) => {
+  const flags = {
+    english: "🇬🇧",
+    hindi: "🇮🇳",
+    spanish: "🇪🇸",
+    french: "🇫🇷",
+    german: "🇩🇪",
+    japanese: "🇯🇵",
+    chinese: "🇨🇳",
+    korean: "🇰🇷",
+  };
+
+  return flags[language?.toLowerCase()] || "🌐";
+};
 
 const HomePage = () => {
   const queryClient = useQueryClient();
