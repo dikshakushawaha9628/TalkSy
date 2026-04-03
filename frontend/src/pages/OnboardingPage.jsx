@@ -48,6 +48,28 @@ const OnboardingPage = () => {
     setFormState({ ...formState, profilePic: randomAvatar });
     toast.success("Random profile picture generated!");
   };
+
+  const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
+
+  const handleProfilePicFile = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image file.");
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      toast.error("Image must be 2MB or smaller.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormState((prev) => ({ ...prev, profilePic: reader.result }));
+      toast.success("Photo added — submit to save your profile.");
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
   return (
     <div className="min-h-screen bg-base-100 flex items-center justify-center p-4">
       <div className="card bg-base-200 w-full max-w-3xl shadow-xl">
@@ -72,13 +94,26 @@ const OnboardingPage = () => {
                 )}
               </div>
 
-              {/* Generate Random Avatar BTN */}
-              <div className="flex items-center gap-2">
-                <button type="button" onClick={handleRandomAvatar} className="btn btn-accent">
+              {/* Upload or random avatar */}
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <label className="btn btn-outline btn-sm cursor-pointer">
+                  <CameraIcon className="size-4 mr-2" />
+                  Upload photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleProfilePicFile}
+                  />
+                </label>
+                <button type="button" onClick={handleRandomAvatar} className="btn btn-accent btn-sm">
                   <ShuffleIcon className="size-4 mr-2" />
-                  Generate Random Avatar
+                  Random avatar
                 </button>
               </div>
+              <p className="text-xs text-center opacity-60 max-w-sm">
+                Uploads are stored with your profile (max 2MB). Use a square image for best results.
+              </p>
             </div>
 
             {/* FULL NAME */}

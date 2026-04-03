@@ -15,7 +15,7 @@ app.use(cors({
     origin: process.env.FRONTEND_URL , // Adjust this to your frontend URL
     credentials: true // Allow cookies to be sent with requests
 }))
-app.use(express.json()); // Middleware to parse JSON bodies
+app.use(express.json({ limit: "8mb" })); // profile pics may be sent as data URLs in onboarding
 app.use(cookieParser());
 
 const PORT = process.env.PORT || 5002;

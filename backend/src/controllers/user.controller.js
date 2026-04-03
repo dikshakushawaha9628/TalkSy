@@ -48,8 +48,8 @@ export async function sendFriendRequest(req, res) {
       return res.status(404).json({ message: "Recipient not found" });
     }
 
-    // check if user is already friends
-    if (recipient.friends.includes(myId)) {
+    // ObjectId vs string: use string comparison
+    if (recipient.friends.some((fid) => fid.toString() === String(myId))) {
       return res.status(400).json({ message: "You are already friends with this user" });
     }
 
@@ -119,7 +119,7 @@ export async function getFriendRequests(req, res) {
     const incomingReqs = await FriendRequest.find({
       recipient: req.user.id,
       status: "pending",
-    }).populate("sender", "fullName profilePic location ");
+    }).populate("sender", "fullName profilePic location profession");
 
     const acceptedReqs = await FriendRequest.find({
       sender: req.user.id,
@@ -138,7 +138,7 @@ export async function getOutgoingFriendReqs(req, res) {
     const outgoingRequests = await FriendRequest.find({
       sender: req.user.id,
       status: "pending",
-    }).populate("recipient", "fullName profilePic location ");
+    }).populate("recipient", "fullName profilePic location profession");
 
     res.status(200).json(outgoingRequests);
   } catch (error) {

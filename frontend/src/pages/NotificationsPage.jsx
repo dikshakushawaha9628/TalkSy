@@ -16,6 +16,8 @@ const NotificationsPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
       queryClient.invalidateQueries({ queryKey: ["friends"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["outgoingFriendReqs"] });
     },
   });
 
@@ -56,12 +58,16 @@ const NotificationsPage = () => {
                             <div>
                               <h3 className="font-semibold">{request.sender.fullName}</h3>
                               <div className="flex flex-wrap gap-1.5 mt-1">
-                                <span className="badge badge-secondary badge-sm">
-                                  Native: {request.sender.Profession}
-                                </span>
-                                <span className="badge badge-outline badge-sm">
-                                  Learning: {request.sender.Location}
-                                </span>
+                                {request.sender.profession && (
+                                  <span className="badge badge-secondary badge-sm">
+                                    {request.sender.profession}
+                                  </span>
+                                )}
+                                {request.sender.location && (
+                                  <span className="badge badge-outline badge-sm">
+                                    {request.sender.location}
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>

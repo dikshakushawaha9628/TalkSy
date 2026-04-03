@@ -1,8 +1,16 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import { upsertStreamUser } from "../lib/stream.js";
-import bcrypt from 'bcryptjs';
-import cookieParser from 'cookie-parser';
+
+const isProd = process.env.NODE_ENV === "production";
+
+const jwtCookieOptions = {
+  httpOnly: true,
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+  path: "/",
+  sameSite: isProd ? "none" : "lax",
+  secure: isProd,
+};
 
 export async function signup(req, res) {
     const { email, password, fullName } = req.body;
@@ -47,14 +55,9 @@ export async function signup(req, res) {
         }
 
 
-        const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET_KEY, { expiresIn: '7d' });
+        const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET_KEY, { expiresIn: "7d" });
 
-        res.cookie("jwt", token, {
-            httpOnly: true,
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict'
-        })
+        res.cookie("jwt", token, jwtCookieOptions);
         res.status(201).json({
             message: 'User created successfully',
             user: newUser,
@@ -84,18 +87,7 @@ export async function login(req, res) {
             expiresIn: "7d",
         });
 
-        // res.cookie("jwt", token, {
-        //     maxAge: 7 * 24 * 60 * 60 * 1000,
-        //     httpOnly: true, // prevent XSS attacks,
-        //     sameSite: "strict", // prevent CSRF attacks
-        //     secure: process.env.NODE_ENV === "production",
-        // });
-        res.cookie("jwt", token, {
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
-    sameSite: "none",    // allow cross-site
-    secure: true         // MUST be true with sameSite: none
-});
+        res.cookie("jwt", token, jwtCookieOptions);
 
         res.status(200).json({ success: true, user });
     } catch (error) {
@@ -105,7 +97,12 @@ export async function login(req, res) {
 }
 
 export async function logout(req, res) {
-    res.clearCookie("jwt");
+    res.clearCookie("jwt", {
+        httpOnly: true,
+        path: "/",
+        sameSite: isProd ? "none" : "lax",
+        secure: isProd,
+    });
     res.status(200).json({ success: true, message: "Logout successful" });
 }   
 
@@ -144,11 +141,11 @@ console.log("Onboarding user5");
 console.log("Updated User:",updatedUser);
 
     try {
-      await upsertStreamUser([
-       { id: updatedUser._id.toString(),
+      await upsertStreamUser({
+        id: updatedUser._id.toString(),
         name: updatedUser.fullName,
-        image: updatedUser.profilePic || "",}
-      ]);
+        image: updatedUser.profilePic || "",
+      });
       console.log(`Stream user updated after onboarding for ${updatedUser.fullName}`);
       console.log("Onboarding user6");
     } catch (streamError) {
